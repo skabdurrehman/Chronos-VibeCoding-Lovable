@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 const Clock = () => {
   const [time, setTime] = useState(new Date());
@@ -20,14 +21,42 @@ const Clock = () => {
     });
   };
 
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
   return (
-    <div className="mt-6">
-      <div className="bg-black/30 backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-3 shadow-2xl">
-        <div className="text-2xl font-mono font-light text-white/90 tracking-wider">
-          {formatTime(time)}
+    <motion.div 
+      className="flex flex-col items-center"
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+    >
+      <div className="bg-black/40 backdrop-blur-xl border border-white/20 rounded-2xl px-6 py-4 shadow-2xl">
+        <div className="text-center">
+          <motion.div 
+            className="text-3xl font-mono font-light text-white tracking-wider mb-1"
+            style={{
+              textShadow: '0 0 20px rgba(255, 255, 255, 0.3)',
+              filter: 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.2))'
+            }}
+            key={formatTime(time)}
+            initial={{ scale: 1.05 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.2 }}
+          >
+            {formatTime(time)}
+          </motion.div>
+          <div className="text-sm text-gray-400 font-medium tracking-wide">
+            {formatDate(time)}
+          </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
