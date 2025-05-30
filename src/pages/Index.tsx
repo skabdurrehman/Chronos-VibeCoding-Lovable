@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Stopwatch from '../components/Stopwatch';
 import Timer from '../components/Timer';
 import Clock from '../components/Clock';
-import { Timer as TimerIcon, Stopwatch as StopwatchIcon } from 'lucide-react';
+import { Timer as TimerIcon, Clock as ClockIcon } from 'lucide-react';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<'stopwatch' | 'timer'>('stopwatch');
@@ -32,7 +32,7 @@ const Index = () => {
                     : 'text-gray-300 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <StopwatchIcon size={20} />
+                <ClockIcon size={20} />
                 <span>Stopwatch</span>
               </button>
               <button
