@@ -36,11 +36,47 @@ const Index = () => {
             />
           </motion.button>
 
-          {/* Clock HUD */}
-          <Clock />
+          {/* Tab Navigation - Centered */}
+          <motion.div 
+            className="flex justify-center"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="bg-black/30 backdrop-blur-xl border border-white/10 rounded-3xl p-3 shadow-2xl shadow-black/50">
+              <div className="flex space-x-3">
+                <motion.button
+                  onClick={() => setActiveTab('stopwatch')}
+                  className={`flex items-center space-x-3 px-8 py-4 rounded-2xl font-semibold transition-all duration-500 text-lg ${
+                    activeTab === 'stopwatch'
+                      ? 'bg-gradient-to-r from-cyan-500/90 to-blue-500/90 text-white shadow-lg shadow-cyan-500/40 border border-cyan-400/50'
+                      : 'text-gray-300 hover:text-white hover:bg-white/5 hover:shadow-lg hover:shadow-white/10'
+                  }`}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <ClockIcon size={24} />
+                  <span className="font-bold tracking-wide">Stopwatch</span>
+                </motion.button>
+                <motion.button
+                  onClick={() => setActiveTab('timer')}
+                  className={`flex items-center space-x-3 px-8 py-4 rounded-2xl font-semibold transition-all duration-500 text-lg ${
+                    activeTab === 'timer'
+                      ? 'bg-gradient-to-r from-purple-500/90 to-pink-500/90 text-white shadow-lg shadow-purple-500/40 border border-purple-400/50'
+                      : 'text-gray-300 hover:text-white hover:bg-white/5 hover:shadow-lg hover:shadow-white/10'
+                  }`}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <TimerIcon size={24} />
+                  <span className="font-bold tracking-wide">Timer</span>
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
 
-          {/* Spacer for balance */}
-          <div className="w-[60px]"></div>
+          {/* Clock HUD - Right Side */}
+          <Clock />
         </div>
 
         {/* Calendar Modal */}
@@ -50,47 +86,8 @@ const Index = () => {
           )}
         </AnimatePresence>
         
-        {/* Tab Navigation */}
-        <motion.div 
-          className="mt-8 mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="bg-black/30 backdrop-blur-xl border border-white/10 rounded-3xl p-3 shadow-2xl shadow-black/50">
-            <div className="flex space-x-3">
-              <motion.button
-                onClick={() => setActiveTab('stopwatch')}
-                className={`flex items-center space-x-3 px-8 py-4 rounded-2xl font-semibold transition-all duration-500 text-lg ${
-                  activeTab === 'stopwatch'
-                    ? 'bg-gradient-to-r from-cyan-500/90 to-blue-500/90 text-white shadow-lg shadow-cyan-500/40 border border-cyan-400/50'
-                    : 'text-gray-300 hover:text-white hover:bg-white/5 hover:shadow-lg hover:shadow-white/10'
-                }`}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <ClockIcon size={24} />
-                <span className="font-bold tracking-wide">Stopwatch</span>
-              </motion.button>
-              <motion.button
-                onClick={() => setActiveTab('timer')}
-                className={`flex items-center space-x-3 px-8 py-4 rounded-2xl font-semibold transition-all duration-500 text-lg ${
-                  activeTab === 'timer'
-                    ? 'bg-gradient-to-r from-purple-500/90 to-pink-500/90 text-white shadow-lg shadow-purple-500/40 border border-purple-400/50'
-                    : 'text-gray-300 hover:text-white hover:bg-white/5 hover:shadow-lg hover:shadow-white/10'
-                }`}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <TimerIcon size={24} />
-                <span className="font-bold tracking-wide">Timer</span>
-              </motion.button>
-            </div>
-          </div>
-        </motion.div>
-
         {/* Main Content */}
-        <div className="w-full max-w-4xl">
+        <div className="w-full max-w-4xl mt-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
