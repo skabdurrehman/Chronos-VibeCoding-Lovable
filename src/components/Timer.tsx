@@ -31,6 +31,7 @@ const Timer = () => {
     isComplete: false,
   });
   const [isMuted, setIsMuted] = useState(false);
+  const [repeatMode, setRepeatMode] = useState(false);
   const [customPresets, setCustomPresets] = useState<CustomPreset[]>([]);
   const [isCompleteAnimating, setIsCompleteAnimating] = useState(false);
   
