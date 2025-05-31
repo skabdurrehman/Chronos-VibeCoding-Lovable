@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, Square, Bell, BellRing, Volume2, VolumeX, RotateCcw, SquareX } from 'lucide-react';
+import { Play, Pause, RotateCcw, SquareX, BellRing, Volume2, VolumeX } from 'lucide-react';
 import TimerPresets from './TimerPresets';
 import TimerInput from './TimerInput';
 
@@ -31,7 +31,6 @@ const Timer = () => {
     isComplete: false,
   });
   const [isMuted, setIsMuted] = useState(false);
-  const [repeatMode, setRepeatMode] = useState(false);
   const [customPresets, setCustomPresets] = useState<CustomPreset[]>([]);
   const [isCompleteAnimating, setIsCompleteAnimating] = useState(false);
   
@@ -235,7 +234,7 @@ const Timer = () => {
   const getStatusColor = () => {
     if (timer.isComplete) return 'from-green-400 via-emerald-400 to-green-500';
     if (timer.isRunning) return 'from-blue-400 via-purple-400 to-blue-500';
-    if (timer.remaining > 0) return 'from-yellow-400 via-orange-400 to-yellow-500';
+    if (timer.remaining > 0) return 'from-purple-400 via-blue-400 to-purple-500';
     return 'from-gray-400 via-gray-500 to-gray-400';
   };
 
@@ -245,13 +244,13 @@ const Timer = () => {
       <AnimatePresence>
         {isCompleteAnimating && (
           <motion.div 
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
             <motion.div 
-              className="bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 p-12 rounded-3xl shadow-2xl border border-green-400/50"
+              className="bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 p-12 rounded-3xl shadow-2xl border border-green-500/50"
               initial={{ scale: 0.5, opacity: 0, y: 50 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.5, opacity: 0, y: -50 }}
@@ -264,12 +263,7 @@ const Timer = () => {
                 >
                   <BellRing size={64} className="mx-auto mb-6" />
                 </motion.div>
-                <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-white to-green-100 bg-clip-text text-transparent">
-                  Timer Complete!
-                </h2>
-                {repeatMode && (
-                  <p className="text-xl text-green-100">Restarting in 2 seconds...</p>
-                )}
+                <h2 className="text-4xl font-bold mb-4">Timer Complete!</h2>
               </div>
             </motion.div>
           </motion.div>
@@ -278,18 +272,14 @@ const Timer = () => {
 
       {/* Main Timer Display */}
       <motion.div 
-        className="bg-black/40 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl"
+        className="bg-black/50 backdrop-blur-xl border border-purple-500/30 rounded-3xl p-8 shadow-2xl"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6 }}
       >
         <div className="text-center">
           <motion.div 
-            className={`text-5xl md:text-7xl font-mono font-light bg-gradient-to-r ${getStatusColor()} bg-clip-text text-transparent mb-6 drop-shadow-2xl tracking-wider ${timer.isRunning ? 'animate-pulse' : ''}`}
-            style={{
-              textShadow: timer.isRunning ? '0 0 30px rgba(59, 130, 246, 0.5)' : 'none',
-              filter: timer.isRunning ? 'drop-shadow(0 0 20px rgba(59, 130, 246, 0.3))' : 'none'
-            }}
+            className={`text-5xl md:text-7xl font-mono font-light bg-gradient-to-r ${getStatusColor()} bg-clip-text text-transparent mb-6 tracking-wider`}
           >
             {formatTime(timer.remaining, timer.remaining < 60000)}
           </motion.div>
@@ -297,32 +287,27 @@ const Timer = () => {
           {/* Progress Bar */}
           {timer.duration > 0 && (
             <motion.div 
-              className="w-full bg-white/10 rounded-full h-3 mb-8 overflow-hidden border border-white/20"
+              className="w-full bg-white/10 rounded-full h-3 mb-8 overflow-hidden border border-purple-500/30"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
               <motion.div 
-                className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 transition-all duration-300 ease-linear shadow-lg"
+                className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 transition-all duration-300 ease-linear"
                 style={{ width: `${getProgressPercentage()}%` }}
-                initial={{ width: 0 }}
-                animate={{ width: `${getProgressPercentage()}%` }}
               />
             </motion.div>
           )}
           
-          {/* Control Buttons - Only 4 buttons as requested */}
-          <div className="flex justify-center space-x-6 mb-8">
-            {/* 1. Start/Pause Button - GREEN when start */}
+          {/* Control Buttons - Only 4 buttons in first row */}
+          <div className="flex justify-center space-x-6 mb-6">
+            {/* 1. Start/Pause Button */}
             {!timer.isRunning ? (
               <motion.button
                 onClick={handleStart}
                 disabled={timer.remaining === 0}
-                className="bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 hover:from-green-400 hover:via-emerald-400 hover:to-green-500 disabled:from-gray-600 disabled:via-gray-700 disabled:to-gray-600 disabled:cursor-not-allowed text-white p-5 rounded-2xl shadow-lg shadow-green-500/40 transition-all duration-500 border border-green-400/50 disabled:border-gray-500/50"
-                whileHover={timer.remaining > 0 ? { 
-                  scale: 1.1, 
-                  boxShadow: '0 25px 50px -12px rgba(34, 197, 94, 0.4)' 
-                } : {}}
+                className="bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 hover:from-green-500 hover:via-emerald-500 hover:to-green-600 disabled:from-gray-700 disabled:via-gray-800 disabled:to-gray-700 disabled:cursor-not-allowed text-white p-5 rounded-2xl shadow-lg transition-all duration-500 border border-green-500/50 disabled:border-gray-600/50"
+                whileHover={timer.remaining > 0 ? { scale: 1.1 } : {}}
                 whileTap={timer.remaining > 0 ? { scale: 0.95 } : {}}
               >
                 <Play size={28} />
@@ -330,86 +315,58 @@ const Timer = () => {
             ) : (
               <motion.button
                 onClick={handlePause}
-                className="bg-gradient-to-r from-yellow-500 via-orange-500 to-yellow-600 hover:from-yellow-400 hover:via-orange-400 hover:to-yellow-500 text-white p-5 rounded-2xl shadow-lg shadow-yellow-500/40 transition-all duration-500 border border-yellow-400/50"
-                whileHover={{ 
-                  scale: 1.1, 
-                  boxShadow: '0 25px 50px -12px rgba(245, 158, 11, 0.4)' 
-                }}
+                className="bg-gradient-to-r from-yellow-600 via-amber-600 to-yellow-700 hover:from-yellow-500 hover:via-amber-500 hover:to-yellow-600 text-white p-5 rounded-2xl shadow-lg transition-all duration-500 border border-yellow-500/50"
+                whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <Pause size={28} />
               </motion.button>
             )}
             
-            {/* 2. Reset Button - YELLOW */}
+            {/* 2. Reset Button */}
             <motion.button
               onClick={handleReset}
               disabled={timer.remaining === timer.duration}
-              className="bg-gradient-to-r from-yellow-500 via-amber-500 to-yellow-600 hover:from-yellow-400 hover:via-amber-400 hover:to-yellow-500 disabled:from-gray-600 disabled:via-gray-700 disabled:to-gray-600 disabled:cursor-not-allowed text-white p-5 rounded-2xl shadow-lg shadow-yellow-500/40 transition-all duration-500 border border-yellow-400/50 disabled:border-gray-500/50"
-              whileHover={timer.remaining !== timer.duration ? { 
-                scale: 1.1, 
-                boxShadow: '0 25px 50px -12px rgba(245, 158, 11, 0.4)' 
-              } : {}}
+              className="bg-gradient-to-r from-yellow-600 via-amber-600 to-yellow-700 hover:from-yellow-500 hover:via-amber-500 hover:to-yellow-600 disabled:from-gray-700 disabled:via-gray-800 disabled:to-gray-700 disabled:cursor-not-allowed text-white p-5 rounded-2xl shadow-lg transition-all duration-500 border border-yellow-500/50 disabled:border-gray-600/50"
+              whileHover={timer.remaining !== timer.duration ? { scale: 1.1 } : {}}
               whileTap={timer.remaining !== timer.duration ? { scale: 0.95 } : {}}
             >
               <RotateCcw size={28} />
             </motion.button>
             
-            {/* 3. Restart Button - BLUE/PURPLE */}
+            {/* 3. Restart Button */}
             <motion.button
               onClick={handleRestart}
               disabled={timer.duration === 0}
-              className="bg-gradient-to-r from-purple-500 via-pink-500 to-purple-600 hover:from-purple-400 hover:via-pink-400 hover:to-purple-500 disabled:from-gray-600 disabled:via-gray-700 disabled:to-gray-600 disabled:cursor-not-allowed text-white p-5 rounded-2xl shadow-lg shadow-purple-500/40 transition-all duration-500 border border-purple-400/50 disabled:border-gray-500/50"
-              whileHover={timer.duration > 0 ? { 
-                scale: 1.1, 
-                boxShadow: '0 25px 50px -12px rgba(168, 85, 247, 0.4)' 
-              } : {}}
+              className="bg-gradient-to-r from-purple-600 via-violet-600 to-purple-700 hover:from-purple-500 hover:via-violet-500 hover:to-purple-600 disabled:from-gray-700 disabled:via-gray-800 disabled:to-gray-700 disabled:cursor-not-allowed text-white p-5 rounded-2xl shadow-lg transition-all duration-500 border border-purple-500/50 disabled:border-gray-600/50"
+              whileHover={timer.duration > 0 ? { scale: 1.1 } : {}}
               whileTap={timer.duration > 0 ? { scale: 0.95 } : {}}
             >
-              <Square size={28} />
+              <RotateCcw size={28} />
             </motion.button>
 
-            {/* 4. Clear/Reset to Zero Button - RED */}
+            {/* 4. Clear/Reset to Zero Button */}
             <motion.button
               onClick={handleResetToZero}
-              className="bg-gradient-to-r from-red-500 via-pink-500 to-red-600 hover:from-red-400 hover:via-pink-400 hover:to-red-500 text-white p-5 rounded-2xl shadow-lg shadow-red-500/40 transition-all duration-500 border border-red-400/50"
-              whileHover={{ 
-                scale: 1.1, 
-                boxShadow: '0 25px 50px -12px rgba(239, 68, 68, 0.4)' 
-              }}
+              className="bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-500 hover:via-rose-500 hover:to-red-600 text-white p-5 rounded-2xl shadow-lg transition-all duration-500 border border-red-500/50"
+              whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              title="Clear Timer"
             >
               <SquareX size={28} />
             </motion.button>
-          </div>
 
-          {/* Settings - Orange background for sound button */}
-          <div className="flex justify-center space-x-6">
+            {/* 5. Volume Button - Moved to first row with orange background */}
             <motion.button
               onClick={() => setIsMuted(!isMuted)}
-              className={`p-4 rounded-2xl transition-all duration-500 border-2 ${
+              className={`p-5 rounded-2xl transition-all duration-500 border-2 ${
                 isMuted 
-                  ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30 border-red-400/50 shadow-lg shadow-red-500/25' 
-                  : 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 border-orange-400/50 shadow-lg shadow-orange-500/25'
+                  ? 'bg-red-600/80 text-red-200 hover:bg-red-500/90 border-red-500/50 shadow-lg' 
+                  : 'bg-orange-600/80 text-orange-200 hover:bg-orange-500/90 border-orange-500/50 shadow-lg'
               }`}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
             >
-              {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
-            </motion.button>
-            
-            <motion.button
-              onClick={() => setRepeatMode(!repeatMode)}
-              className={`p-4 rounded-2xl transition-all duration-500 border-2 ${
-                repeatMode 
-                  ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 border-blue-400/50 shadow-lg shadow-blue-500/25' 
-                  : 'bg-gray-500/20 text-gray-400 hover:bg-gray-500/30 border-gray-400/50 shadow-lg shadow-gray-500/25'
-              }`}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <RotateCcw size={24} />
+              {isMuted ? <VolumeX size={28} /> : <Volume2 size={28} />}
             </motion.button>
           </div>
         </div>
@@ -422,14 +379,14 @@ const Timer = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        <div className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl p-3 shadow-2xl">
+        <div className="bg-black/40 backdrop-blur-xl border border-purple-500/20 rounded-2xl p-3 shadow-2xl">
           <div className="flex space-x-3">
             <motion.button
               onClick={() => setActiveTab('manual')}
               className={`px-6 py-3 rounded-xl font-semibold transition-all duration-500 ${
                 activeTab === 'manual'
-                  ? 'bg-gradient-to-r from-blue-500/80 to-cyan-500/80 text-white shadow-lg shadow-blue-500/25 border border-blue-400/50'
-                  : 'text-gray-300 hover:text-white hover:bg-white/5'
+                  ? 'bg-gradient-to-r from-blue-600/80 to-cyan-600/80 text-white shadow-lg border border-blue-500/50'
+                  : 'text-purple-300 hover:text-white hover:bg-purple-500/20'
               }`}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -440,8 +397,8 @@ const Timer = () => {
               onClick={() => setActiveTab('presets')}
               className={`px-6 py-3 rounded-xl font-semibold transition-all duration-500 ${
                 activeTab === 'presets'
-                  ? 'bg-gradient-to-r from-purple-500/80 to-pink-500/80 text-white shadow-lg shadow-purple-500/25 border border-purple-400/50'
-                  : 'text-gray-300 hover:text-white hover:bg-white/5'
+                  ? 'bg-gradient-to-r from-purple-600/80 to-pink-600/80 text-white shadow-lg border border-purple-500/50'
+                  : 'text-purple-300 hover:text-white hover:bg-purple-500/20'
               }`}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
