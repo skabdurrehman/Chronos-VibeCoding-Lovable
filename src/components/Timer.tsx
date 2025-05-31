@@ -273,7 +273,7 @@ const Timer = () => {
 
       {/* Main Timer Display */}
       <motion.div 
-        className="bg-black/50 backdrop-blur-xl border border-purple-500/30 rounded-3xl p-8 shadow-2xl"
+        className="bg-gradient-to-br from-slate-900/60 via-purple-950/70 to-blue-950/60 backdrop-blur-xl border border-purple-500/20 rounded-3xl p-8 shadow-2xl"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6 }}
@@ -288,19 +288,19 @@ const Timer = () => {
           {/* Progress Bar */}
           {timer.duration > 0 && (
             <motion.div 
-              className="w-full bg-white/10 rounded-full h-3 mb-8 overflow-hidden border border-purple-500/30"
+              className="w-full bg-slate-700/30 rounded-full h-3 mb-8 overflow-hidden border border-purple-500/20"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
               <motion.div 
-                className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 transition-all duration-300 ease-linear"
+                className="h-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-600 transition-all duration-300 ease-linear"
                 style={{ width: `${getProgressPercentage()}%` }}
               />
             </motion.div>
           )}
           
-          {/* Control Buttons - Only 4 buttons in first row */}
+          {/* Control Buttons - Only 4 buttons now */}
           <div className="flex justify-center space-x-6 mb-6">
             {/* 1. Start/Pause Button */}
             {!timer.isRunning ? (
@@ -324,7 +324,7 @@ const Timer = () => {
               </motion.button>
             )}
             
-            {/* 2. Reset Button */}
+            {/* 2. Reset Button (resets to duration) */}
             <motion.button
               onClick={handleReset}
               disabled={timer.remaining === timer.duration}
@@ -334,19 +334,8 @@ const Timer = () => {
             >
               <RotateCcw size={28} />
             </motion.button>
-            
-            {/* 3. Restart Button */}
-            <motion.button
-              onClick={handleRestart}
-              disabled={timer.duration === 0}
-              className="bg-gradient-to-r from-purple-600 via-violet-600 to-purple-700 hover:from-purple-500 hover:via-violet-500 hover:to-purple-600 disabled:from-gray-700 disabled:via-gray-800 disabled:to-gray-700 disabled:cursor-not-allowed text-white p-5 rounded-2xl shadow-lg transition-all duration-500 border border-purple-500/50 disabled:border-gray-600/50"
-              whileHover={timer.duration > 0 ? { scale: 1.1 } : {}}
-              whileTap={timer.duration > 0 ? { scale: 0.95 } : {}}
-            >
-              <RotateCcw size={28} />
-            </motion.button>
 
-            {/* 4. Clear/Reset to Zero Button */}
+            {/* 3. Clear/Reset to Zero Button */}
             <motion.button
               onClick={handleResetToZero}
               className="bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-500 hover:via-rose-500 hover:to-red-600 text-white p-5 rounded-2xl shadow-lg transition-all duration-500 border border-red-500/50"
@@ -356,7 +345,7 @@ const Timer = () => {
               <SquareX size={28} />
             </motion.button>
 
-            {/* 5. Volume Button - Moved to first row with orange background */}
+            {/* 4. Volume Button */}
             <motion.button
               onClick={() => setIsMuted(!isMuted)}
               className={`p-5 rounded-2xl transition-all duration-500 border-2 ${
@@ -380,7 +369,7 @@ const Timer = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        <div className="bg-black/40 backdrop-blur-xl border border-purple-500/20 rounded-2xl p-3 shadow-2xl">
+        <div className="bg-slate-900/60 backdrop-blur-xl border border-purple-500/20 rounded-2xl p-3 shadow-2xl">
           <div className="flex space-x-3">
             <motion.button
               onClick={() => setActiveTab('manual')}
