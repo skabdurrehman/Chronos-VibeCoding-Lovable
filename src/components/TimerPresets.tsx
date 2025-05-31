@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Plus, Edit, Trash } from 'lucide-react';
 
 interface CustomPreset {
@@ -7,6 +8,9 @@ interface CustomPreset {
   name: string;
   duration: number;
   color: string;
+  days?: number;
+  hours?: number;
+  minutes?: number;
 }
 
 interface TimerPresetsProps {
@@ -22,6 +26,8 @@ const TimerPresets: React.FC<TimerPresetsProps> = ({
 }) => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newPresetName, setNewPresetName] = useState('');
+  const [newPresetDays, setNewPresetDays] = useState('');
+  const [newPresetHours, setNewPresetHours] = useState('');
   const [newPresetMinutes, setNewPresetMinutes] = useState('');
 
   const defaultPresets = [
@@ -31,6 +37,8 @@ const TimerPresets: React.FC<TimerPresetsProps> = ({
     { name: '30 min', duration: 30 * 60 * 1000, color: 'from-pink-400 to-pink-600' },
     { name: '45 min', duration: 45 * 60 * 1000, color: 'from-orange-400 to-orange-600' },
     { name: '60 min', duration: 60 * 60 * 1000, color: 'from-red-400 to-red-600' },
+    { name: '2 hours', duration: 2 * 60 * 60 * 1000, color: 'from-cyan-400 to-cyan-600' },
+    { name: '8 hours', duration: 8 * 60 * 60 * 1000, color: 'from-indigo-400 to-indigo-600' },
   ];
 
   const colorOptions = [
@@ -51,17 +59,26 @@ const TimerPresets: React.FC<TimerPresetsProps> = ({
   };
 
   const handleAddPreset = () => {
-    if (newPresetName.trim() && newPresetMinutes.trim()) {
-      const minutes = parseInt(newPresetMinutes);
-      if (minutes > 0) {
+    if (newPresetName.trim()) {
+      const days = parseInt(newPresetDays) || 0;
+      const hours = parseInt(newPresetHours) || 0;
+      const minutes = parseInt(newPresetMinutes) || 0;
+      
+      if (days > 0 || hours > 0 || minutes > 0) {
+        const totalMs = (days * 86400 + hours * 3600 + minutes * 60) * 1000;
         const newPreset: CustomPreset = {
           id: Date.now().toString(),
           name: newPresetName.trim(),
-          duration: minutes * 60 * 1000,
+          duration: totalMs,
           color: getRandomColor(),
+          days,
+          hours,
+          minutes,
         };
         setCustomPresets([...customPresets, newPreset]);
         setNewPresetName('');
+        setNewPresetDays('');
+        setNewPresetHours('');
         setNewPresetMinutes('');
         setShowAddForm(false);
       }
@@ -73,30 +90,41 @@ const TimerPresets: React.FC<TimerPresetsProps> = ({
   };
 
   const formatDuration = (ms: number) => {
-    const minutes = Math.floor(ms / 60000);
-    const hours = Math.floor(minutes / 60);
-    if (hours > 0) {
-      return `${hours}h ${minutes % 60}m`;
-    }
-    return `${minutes}m`;
+    const days = Math.floor(ms / 86400000);
+    const hours = Math.floor((ms % 86400000) / 3600000);
+    const minutes = Math.floor((ms % 3600000) / 60000);
+    
+    const parts = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0) parts.push(`${minutes}m`);
+    
+    return parts.join(' ') || '0m';
   };
 
   return (
-    <div className="bg-black/30 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl">
-      <h3 className="text-xl font-semibold text-white mb-6">Timer Presets</h3>
+    <motion.div 
+      className="bg-black/30 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <h3 className="text-xl font-semibold text-white mb-6 bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">Timer Presets</h3>
       
       {/* Default Presets */}
       <div className="mb-8">
         <h4 className="text-sm font-medium text-gray-400 mb-4">Default Presets</h4>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {defaultPresets.map((preset) => (
-            <button
+            <motion.button
               key={preset.name}
               onClick={() => onSelectDuration(preset.duration)}
-              className={`bg-gradient-to-r ${preset.color} p-4 rounded-2xl text-white font-medium shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl`}
+              className={`bg-gradient-to-r ${preset.color} p-4 rounded-2xl text-white font-medium shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl backdrop-blur-sm border border-white/20`}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
             >
               {preset.name}
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>
@@ -105,67 +133,113 @@ const TimerPresets: React.FC<TimerPresetsProps> = ({
       <div>
         <div className="flex justify-between items-center mb-4">
           <h4 className="text-sm font-medium text-gray-400">Custom Presets</h4>
-          <button
+          <motion.button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-400 hover:to-purple-400 text-white p-2 rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
+            className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white p-2 rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <Plus size={16} />
-          </button>
+          </motion.button>
         </div>
 
         {/* Add Form */}
         {showAddForm && (
-          <div className="bg-white/5 rounded-2xl p-4 mb-4 border border-white/10">
-            <div className="flex space-x-3">
+          <motion.div 
+            className="bg-white/5 rounded-2xl p-4 mb-4 border border-white/10"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <input
+              type="text"
+              placeholder="Preset name"
+              value={newPresetName}
+              onChange={(e) => setNewPresetName(e.target.value)}
+              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 mb-3"
+            />
+            <div className="flex space-x-2 mb-3">
               <input
-                type="text"
-                placeholder="Preset name"
-                value={newPresetName}
-                onChange={(e) => setNewPresetName(e.target.value)}
-                className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                type="number"
+                placeholder="Days"
+                value={newPresetDays}
+                onChange={(e) => setNewPresetDays(e.target.value)}
+                className="flex-1 bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                min="0"
+              />
+              <input
+                type="number"
+                placeholder="Hours"
+                value={newPresetHours}
+                onChange={(e) => setNewPresetHours(e.target.value)}
+                className="flex-1 bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                min="0"
+                max="23"
               />
               <input
                 type="number"
                 placeholder="Minutes"
                 value={newPresetMinutes}
                 onChange={(e) => setNewPresetMinutes(e.target.value)}
-                className="w-24 bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                min="0"
+                max="59"
               />
-              <button
+            </div>
+            <div className="flex space-x-2">
+              <motion.button
                 onClick={handleAddPreset}
                 className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-white px-4 py-2 rounded-xl transition-all duration-300 hover:scale-105"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 Add
-              </button>
+              </motion.button>
+              <motion.button
+                onClick={() => setShowAddForm(false)}
+                className="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded-xl transition-all duration-300"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Cancel
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Custom Preset List */}
         {customPresets.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {customPresets.map((preset) => (
-              <div
+              <motion.div
                 key={preset.id}
                 className="group relative"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
               >
-                <button
+                <motion.button
                   onClick={() => onSelectDuration(preset.duration)}
-                  className={`w-full bg-gradient-to-r ${preset.color} p-4 rounded-2xl text-white font-medium shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl`}
+                  className={`w-full bg-gradient-to-r ${preset.color} p-4 rounded-2xl text-white font-medium shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl backdrop-blur-sm border border-white/20`}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   <div className="text-left">
                     <div className="font-semibold">{preset.name}</div>
                     <div className="text-sm opacity-90">{formatDuration(preset.duration)}</div>
                   </div>
-                </button>
+                </motion.button>
                 
-                <button
+                <motion.button
                   onClick={() => handleDeletePreset(preset.id)}
                   className="absolute top-2 right-2 bg-red-500/80 hover:bg-red-500 text-white p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                 >
                   <Trash size={14} />
-                </button>
-              </div>
+                </motion.button>
+              </motion.div>
             ))}
           </div>
         ) : (
@@ -174,7 +248,7 @@ const TimerPresets: React.FC<TimerPresetsProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

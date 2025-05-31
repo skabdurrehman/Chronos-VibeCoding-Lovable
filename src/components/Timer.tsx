@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, Square, Bell, BellRing, Volume2, VolumeX, RotateCcw, Edit, Trash } from 'lucide-react';
+import { Play, Pause, Square, Bell, BellRing, Volume2, VolumeX, RotateCcw, SquareX } from 'lucide-react';
 import TimerPresets from './TimerPresets';
 import TimerInput from './TimerInput';
 
@@ -10,6 +10,7 @@ interface TimerState {
   remaining: number;
   isRunning: boolean;
   isComplete: boolean;
+  startTime?: number;
 }
 
 interface CustomPreset {
@@ -17,6 +18,9 @@ interface CustomPreset {
   name: string;
   duration: number;
   color: string;
+  days?: number;
+  hours?: number;
+  minutes?: number;
 }
 
 const Timer = () => {
@@ -34,16 +38,45 @@ const Timer = () => {
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Load settings from localStorage
+  // Load settings and timer state from localStorage
   useEffect(() => {
     const savedMuted = localStorage.getItem('timer-muted');
     const savedRepeat = localStorage.getItem('timer-repeat');
     const savedPresets = localStorage.getItem('timer-custom-presets');
+    const savedTimerState = localStorage.getItem('timer-state');
     
     if (savedMuted) setIsMuted(JSON.parse(savedMuted));
     if (savedRepeat) setRepeatMode(JSON.parse(savedRepeat));
     if (savedPresets) setCustomPresets(JSON.parse(savedPresets));
+    
+    // Restore timer state and calculate elapsed time
+    if (savedTimerState) {
+      const state = JSON.parse(savedTimerState);
+      if (state.isRunning && state.startTime) {
+        const now = Date.now();
+        const elapsed = now - state.startTime;
+        const newRemaining = Math.max(0, state.remaining - elapsed);
+        
+        setTimer({
+          ...state,
+          remaining: newRemaining,
+          isRunning: newRemaining > 0,
+          isComplete: newRemaining <= 0,
+        });
+      } else {
+        setTimer(state);
+      }
+    }
   }, []);
+
+  // Save timer state to localStorage
+  useEffect(() => {
+    const stateToSave = {
+      ...timer,
+      startTime: timer.isRunning ? (timer.startTime || Date.now()) : undefined,
+    };
+    localStorage.setItem('timer-state', JSON.stringify(stateToSave));
+  }, [timer]);
 
   // Save settings to localStorage
   useEffect(() => {
@@ -70,6 +103,7 @@ const Timer = () => {
               remaining: 0,
               isRunning: false,
               isComplete: true,
+              startTime: undefined,
             };
           }
           return { ...prev, remaining: newRemaining };
@@ -121,16 +155,23 @@ const Timer = () => {
   }, [timer.isComplete, timer.remaining, isMuted, repeatMode]);
 
   const formatTime = (ms: number, includeMilliseconds = false) => {
-    const hours = Math.floor(ms / 3600000);
+    const days = Math.floor(ms / 86400000);
+    const hours = Math.floor((ms % 86400000) / 3600000);
     const minutes = Math.floor((ms % 3600000) / 60000);
     const seconds = Math.floor((ms % 60000) / 1000);
     const milliseconds = Math.floor((ms % 1000) / 100);
     
-    if (hours > 0) {
-      if (includeMilliseconds) {
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds}`;
+    if (days > 0) {
+      if (includeMilliseconds && hours === 0 && minutes < 10) {
+        return `${days}d ${hours}h ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds}`;
       }
-      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      return `${days}d ${hours}h ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    if (hours > 0) {
+      if (includeMilliseconds && minutes < 10) {
+        return `${hours}h ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds}`;
+      }
+      return `${hours}h ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
     if (includeMilliseconds) {
       return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds}`;
@@ -144,17 +185,23 @@ const Timer = () => {
       remaining: duration,
       isRunning: false,
       isComplete: false,
+      startTime: undefined,
     });
   };
 
   const handleStart = () => {
     if (timer.remaining > 0) {
-      setTimer(prev => ({ ...prev, isRunning: true, isComplete: false }));
+      setTimer(prev => ({ 
+        ...prev, 
+        isRunning: true, 
+        isComplete: false,
+        startTime: Date.now() - (prev.duration - prev.remaining),
+      }));
     }
   };
 
   const handlePause = () => {
-    setTimer(prev => ({ ...prev, isRunning: false }));
+    setTimer(prev => ({ ...prev, isRunning: false, startTime: undefined }));
   };
 
   const handleReset = () => {
@@ -163,6 +210,7 @@ const Timer = () => {
       remaining: prev.duration,
       isRunning: false,
       isComplete: false,
+      startTime: undefined,
     }));
   };
 
@@ -172,6 +220,7 @@ const Timer = () => {
       remaining: prev.duration,
       isRunning: true,
       isComplete: false,
+      startTime: Date.now(),
     }));
   };
 
@@ -181,6 +230,7 @@ const Timer = () => {
       remaining: 0,
       isRunning: false,
       isComplete: false,
+      startTime: undefined,
     });
   };
 
@@ -333,7 +383,7 @@ const Timer = () => {
               whileTap={{ scale: 0.95 }}
               title="Reset to 00:00"
             >
-              <Square size={28} />
+              <SquareX size={28} />
             </motion.button>
           </div>
 

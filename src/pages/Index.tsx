@@ -12,27 +12,39 @@ const Index = () => {
   const [showCalendar, setShowCalendar] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-orange-900 to-gray-900 relative overflow-hidden">
       {/* Advanced Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-cyan-900/20"></div>
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-orange-900/30 to-cyan-900/20"></div>
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-500/15 rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-conic from-cyan-500/5 via-purple-500/5 to-pink-500/5 rounded-full blur-3xl animate-spin" style={{ animationDuration: '30s' }}></div>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-conic from-orange-500/8 via-purple-500/5 to-pink-500/5 rounded-full blur-3xl animate-spin" style={{ animationDuration: '30s' }}></div>
       
       {/* Main container */}
       <div className="relative z-10 flex flex-col items-center min-h-screen p-4">
+        {/* App Title */}
+        <motion.div 
+          className="mb-6"
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-orange-400 via-amber-300 to-orange-500 bg-clip-text text-transparent tracking-wider drop-shadow-lg">
+            CHRONOS
+          </h1>
+        </motion.div>
+
         {/* Top Navigation */}
         <div className="w-full max-w-4xl flex justify-between items-center mb-6">
           {/* Calendar Button */}
           <motion.button
             onClick={() => setShowCalendar(!showCalendar)}
-            className="bg-black/30 backdrop-blur-xl border border-white/10 rounded-2xl p-3 shadow-2xl hover:shadow-cyan-500/25 transition-all duration-500 group"
-            whileHover={{ scale: 1.05, boxShadow: '0 25px 50px -12px rgba(6, 182, 212, 0.25)' }}
+            className="bg-black/30 backdrop-blur-xl border border-white/10 rounded-2xl p-3 shadow-2xl hover:shadow-orange-500/25 transition-all duration-500 group"
+            whileHover={{ scale: 1.05, boxShadow: '0 25px 50px -12px rgba(251, 146, 60, 0.25)' }}
             whileTap={{ scale: 0.95 }}
           >
             <CalendarIcon 
               size={24} 
-              className="text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300" 
+              className="text-orange-400 group-hover:text-orange-300 transition-colors duration-300" 
             />
           </motion.button>
 
