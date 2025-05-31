@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, Square, Bell, BellRing, Volume2, VolumeX, RotateCcw, SquareX } from 'lucide-react';
@@ -162,15 +161,9 @@ const Timer = () => {
     const milliseconds = Math.floor((ms % 1000) / 100);
     
     if (days > 0) {
-      if (includeMilliseconds && hours === 0 && minutes < 10) {
-        return `${days}d ${hours}h ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds}`;
-      }
       return `${days}d ${hours}h ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
     if (hours > 0) {
-      if (includeMilliseconds && minutes < 10) {
-        return `${hours}h ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds}`;
-      }
       return `${hours}h ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
     if (includeMilliseconds) {
@@ -318,8 +311,9 @@ const Timer = () => {
             </motion.div>
           )}
           
-          {/* Control Buttons */}
+          {/* Control Buttons - Only 4 buttons as requested */}
           <div className="flex justify-center space-x-6 mb-8">
+            {/* 1. Start/Pause Button - GREEN when start */}
             {!timer.isRunning ? (
               <motion.button
                 onClick={handleStart}
@@ -347,19 +341,21 @@ const Timer = () => {
               </motion.button>
             )}
             
+            {/* 2. Reset Button - YELLOW */}
             <motion.button
               onClick={handleReset}
               disabled={timer.remaining === timer.duration}
-              className="bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 hover:from-blue-400 hover:via-purple-400 hover:to-blue-500 disabled:from-gray-600 disabled:via-gray-700 disabled:to-gray-600 disabled:cursor-not-allowed text-white p-5 rounded-2xl shadow-lg shadow-blue-500/40 transition-all duration-500 border border-blue-400/50 disabled:border-gray-500/50"
+              className="bg-gradient-to-r from-yellow-500 via-amber-500 to-yellow-600 hover:from-yellow-400 hover:via-amber-400 hover:to-yellow-500 disabled:from-gray-600 disabled:via-gray-700 disabled:to-gray-600 disabled:cursor-not-allowed text-white p-5 rounded-2xl shadow-lg shadow-yellow-500/40 transition-all duration-500 border border-yellow-400/50 disabled:border-gray-500/50"
               whileHover={timer.remaining !== timer.duration ? { 
                 scale: 1.1, 
-                boxShadow: '0 25px 50px -12px rgba(59, 130, 246, 0.4)' 
+                boxShadow: '0 25px 50px -12px rgba(245, 158, 11, 0.4)' 
               } : {}}
               whileTap={timer.remaining !== timer.duration ? { scale: 0.95 } : {}}
             >
               <RotateCcw size={28} />
             </motion.button>
             
+            {/* 3. Restart Button - BLUE/PURPLE */}
             <motion.button
               onClick={handleRestart}
               disabled={timer.duration === 0}
@@ -373,6 +369,7 @@ const Timer = () => {
               <Square size={28} />
             </motion.button>
 
+            {/* 4. Clear/Reset to Zero Button - RED */}
             <motion.button
               onClick={handleResetToZero}
               className="bg-gradient-to-r from-red-500 via-pink-500 to-red-600 hover:from-red-400 hover:via-pink-400 hover:to-red-500 text-white p-5 rounded-2xl shadow-lg shadow-red-500/40 transition-all duration-500 border border-red-400/50"
@@ -381,20 +378,20 @@ const Timer = () => {
                 boxShadow: '0 25px 50px -12px rgba(239, 68, 68, 0.4)' 
               }}
               whileTap={{ scale: 0.95 }}
-              title="Reset to 00:00"
+              title="Clear Timer"
             >
               <SquareX size={28} />
             </motion.button>
           </div>
 
-          {/* Settings */}
+          {/* Settings - Orange background for sound button */}
           <div className="flex justify-center space-x-6">
             <motion.button
               onClick={() => setIsMuted(!isMuted)}
               className={`p-4 rounded-2xl transition-all duration-500 border-2 ${
                 isMuted 
                   ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30 border-red-400/50 shadow-lg shadow-red-500/25' 
-                  : 'bg-green-500/20 text-green-400 hover:bg-green-500/30 border-green-400/50 shadow-lg shadow-green-500/25'
+                  : 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 border-orange-400/50 shadow-lg shadow-orange-500/25'
               }`}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
@@ -455,7 +452,6 @@ const Timer = () => {
         </div>
       </motion.div>
 
-      {/* Timer Input/Presets */}
       <AnimatePresence mode="wait">
         <motion.div
           key={activeTab}
