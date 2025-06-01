@@ -290,7 +290,7 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
       onClick={onClose}
     >
       <motion.div
-        className="bg-gradient-to-br from-slate-900/95 via-purple-950/95 to-blue-950/90 backdrop-blur-2xl border border-purple-500/30 rounded-3xl p-6 shadow-2xl w-full max-w-5xl h-[85vh] overflow-hidden"
+        className="bg-gradient-to-br from-slate-900/95 via-purple-950/95 to-blue-950/90 backdrop-blur-2xl border border-purple-500/30 rounded-3xl p-6 shadow-2xl w-full max-w-4xl h-[85vh] overflow-hidden"
         initial={{ scale: 0.8, opacity: 0, y: 50 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.8, opacity: 0, y: 50 }}
@@ -325,9 +325,9 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-5 gap-4 h-full">
+        <div className="flex gap-6 h-full">
           {/* Calendar - Main Section */}
-          <div className="col-span-3 bg-slate-800/40 rounded-xl p-4 border border-purple-500/20 backdrop-blur-sm relative h-fit">
+          <div className="flex-shrink-0 w-[450px] bg-slate-800/40 rounded-xl p-4 border border-purple-500/20 backdrop-blur-sm relative h-fit">
             {/* Custom Year/Month Navigation */}
             <div className="flex justify-between items-center mb-4">
               <button onClick={() => handleMonthChange(currentMonth > 0 ? currentMonth - 1 : 11)}>
@@ -444,7 +444,7 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
           </div>
 
           {/* Right Side - Reminder Details */}
-          <div className="col-span-2 space-y-4 overflow-y-auto max-h-full">
+          <div className="flex-1 space-y-4 overflow-y-auto max-h-full">
             {/* Selected Date Info */}
             {selectedDate && (
               <motion.div
