@@ -283,14 +283,14 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-8"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
     >
       <motion.div
-        className="bg-gradient-to-br from-slate-900/95 via-purple-950/95 to-blue-950/90 backdrop-blur-2xl border border-purple-500/30 rounded-3xl p-6 shadow-2xl w-full max-w-4xl h-[80vh] overflow-hidden"
+        className="bg-gradient-to-br from-slate-900/95 via-purple-950/95 to-blue-950/90 backdrop-blur-2xl border border-purple-500/30 rounded-3xl p-6 shadow-2xl w-full max-w-5xl h-[85vh] overflow-hidden"
         initial={{ scale: 0.8, opacity: 0, y: 50 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.8, opacity: 0, y: 50 }}
@@ -325,9 +325,9 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-6 h-full">
+        <div className="grid grid-cols-5 gap-4 h-full">
           {/* Calendar - Main Section */}
-          <div className="col-span-2 bg-slate-800/40 rounded-xl p-4 border border-purple-500/20 backdrop-blur-sm relative h-fit">
+          <div className="col-span-3 bg-slate-800/40 rounded-xl p-4 border border-purple-500/20 backdrop-blur-sm relative h-fit">
             {/* Custom Year/Month Navigation */}
             <div className="flex justify-between items-center mb-4">
               <button onClick={() => handleMonthChange(currentMonth > 0 ? currentMonth - 1 : 11)}>
@@ -444,7 +444,7 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
           </div>
 
           {/* Right Side - Reminder Details */}
-          <div className="space-y-4 overflow-y-auto max-h-full">
+          <div className="col-span-2 space-y-4 overflow-y-auto max-h-full">
             {/* Selected Date Info */}
             {selectedDate && (
               <motion.div
@@ -540,7 +540,7 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
               onClick={() => setShowHolidayManager(false)}
             >
               <motion.div
-                className="bg-slate-800/90 border border-purple-400/30 rounded-2xl p-6 backdrop-blur-sm max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+                className="bg-slate-800/90 border border-purple-400/30 rounded-2xl p-6 backdrop-blur-sm max-w-xl w-full mx-4 max-h-[80vh] overflow-y-auto"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
@@ -699,15 +699,15 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
                   className="w-full bg-slate-700/50 border border-purple-400/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mb-3"
                 />
                 
-                <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="grid grid-cols-2 gap-2 mb-4">
                   <div>
-                    <label className="text-sm text-gray-300 mb-1 block">From Date</label>
+                    <label className="text-xs text-gray-300 mb-1 block">From Date</label>
                     <SmallCalendar onDateSelect={setHolidayStartDate} selectedDates={[holidayStartDate]} />
                     <p className="text-xs text-gray-400 mt-1">{holidayStartDate || 'Select start date'}</p>
                   </div>
                   
                   <div>
-                    <label className="text-sm text-gray-300 mb-1 block">To Date</label>
+                    <label className="text-xs text-gray-300 mb-1 block">To Date</label>
                     <SmallCalendar onDateSelect={setHolidayEndDate} selectedDates={[holidayEndDate]} />
                     <p className="text-xs text-gray-400 mt-1">{holidayEndDate || 'Select end date'}</p>
                   </div>
