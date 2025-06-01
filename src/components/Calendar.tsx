@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar as CalendarIcon, Plus, X, Clock, AlertCircle, Edit, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -212,6 +213,12 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
       const holidayStart = new Date(holiday.startDate);
       const holidayEnd = new Date(holiday.endDate);
       const currentDate = new Date(dateStr);
+      
+      // Fix the date comparison to include the end date
+      holidayStart.setHours(0, 0, 0, 0);
+      holidayEnd.setHours(23, 59, 59, 999);
+      currentDate.setHours(0, 0, 0, 0);
+      
       return currentDate >= holidayStart && currentDate <= holidayEnd;
     });
     
@@ -241,7 +248,7 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
   const SmallCalendar = ({ onDateSelect, selectedDates = [] }: { onDateSelect: (date: string) => void, selectedDates?: string[] }) => (
-    <div className="bg-slate-800/30 rounded-lg p-2 border border-slate-600/30">
+    <div className="bg-slate-800/30 rounded-lg p-1 border border-slate-600/30">
       <UICalendar
         mode="single"
         selected={new Date()}
@@ -253,13 +260,13 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
           caption: "flex justify-center pt-1 relative items-center text-slate-300 text-xs",
           caption_label: "text-xs font-medium",
           nav: "space-x-1 flex items-center",
-          nav_button: "h-5 w-5 bg-slate-600/30 hover:bg-slate-600/50 text-slate-300 rounded transition-colors border border-slate-500/30 text-xs",
+          nav_button: "h-4 w-4 bg-slate-600/30 hover:bg-slate-600/50 text-slate-300 rounded transition-colors border border-slate-500/30 text-xs",
           table: "w-full border-collapse",
           head_row: "flex",
-          head_cell: "text-slate-400 rounded w-6 h-6 font-normal text-xs flex items-center justify-center",
+          head_cell: "text-slate-400 rounded w-5 h-5 font-normal text-xs flex items-center justify-center",
           row: "flex w-full mt-0.5",
-          cell: "h-6 w-6 text-center text-xs p-0 relative hover:bg-slate-600/30 rounded transition-colors",
-          day: "h-6 w-6 p-0 font-normal text-slate-300 hover:bg-slate-600/40 rounded transition-colors text-xs",
+          cell: "h-5 w-5 text-center text-xs p-0 relative hover:bg-slate-600/30 rounded transition-colors",
+          day: "h-5 w-5 p-0 font-normal text-slate-300 hover:bg-slate-600/40 rounded transition-colors text-xs",
           day_selected: "bg-purple-500 text-white hover:bg-purple-400",
           day_today: "bg-slate-600/40 text-slate-200 font-bold",
           day_outside: "text-slate-600 opacity-50",
@@ -276,14 +283,14 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
     >
       <motion.div
-        className="bg-gradient-to-br from-slate-900/95 via-purple-950/95 to-blue-950/90 backdrop-blur-2xl border border-purple-500/30 rounded-3xl p-6 shadow-2xl w-full max-w-5xl h-[85vh] overflow-hidden"
+        className="bg-gradient-to-br from-slate-900/95 via-purple-950/95 to-blue-950/90 backdrop-blur-2xl border border-purple-500/30 rounded-3xl p-6 shadow-2xl w-full max-w-4xl h-[80vh] overflow-hidden"
         initial={{ scale: 0.8, opacity: 0, y: 50 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.8, opacity: 0, y: 50 }}
@@ -675,7 +682,7 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
               }}
             >
               <motion.div
-                className="bg-slate-800/90 border border-purple-400/30 rounded-2xl p-6 backdrop-blur-sm max-w-lg w-full mx-4"
+                className="bg-slate-800/90 border border-purple-400/30 rounded-2xl p-6 backdrop-blur-sm max-w-md w-full mx-4"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
@@ -692,15 +699,15 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
                   className="w-full bg-slate-700/50 border border-purple-400/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mb-3"
                 />
                 
-                <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-2 gap-3 mb-4">
                   <div>
-                    <label className="text-sm text-gray-300 mb-2 block">From Date</label>
+                    <label className="text-sm text-gray-300 mb-1 block">From Date</label>
                     <SmallCalendar onDateSelect={setHolidayStartDate} selectedDates={[holidayStartDate]} />
                     <p className="text-xs text-gray-400 mt-1">{holidayStartDate || 'Select start date'}</p>
                   </div>
                   
                   <div>
-                    <label className="text-sm text-gray-300 mb-2 block">To Date</label>
+                    <label className="text-sm text-gray-300 mb-1 block">To Date</label>
                     <SmallCalendar onDateSelect={setHolidayEndDate} selectedDates={[holidayEndDate]} />
                     <p className="text-xs text-gray-400 mt-1">{holidayEndDate || 'Select end date'}</p>
                   </div>
