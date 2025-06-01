@@ -19,10 +19,10 @@ const Index = () => {
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-600/8 rounded-full blur-3xl"></div>
       
       {/* Main container */}
-      <div className="relative z-10 flex flex-col items-center min-h-screen p-4 pt-16">
+      <div className="relative z-10 flex flex-col items-center min-h-screen p-4 pt-24">
         {/* Premium App Title */}
         <motion.div 
-          className="mb-12 relative"
+          className="mb-10 relative"
           initial={{ opacity: 0, y: -50, scale: 0.8 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 1.2, ease: "easeOut" }}
@@ -31,8 +31,8 @@ const Index = () => {
             {/* Subtle glow effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-purple-400/15 via-blue-400/10 to-purple-400/15 blur-2xl opacity-50"></div>
             
-            {/* Main title - reduced size */}
-            <h1 className="relative text-5xl md:text-7xl lg:text-8xl font-black bg-gradient-to-br from-slate-200 via-purple-200 to-blue-200 bg-clip-text text-transparent tracking-[0.15em] select-none">
+            {/* Main title - made smaller */}
+            <h1 className="relative text-4xl md:text-6xl lg:text-7xl font-black bg-gradient-to-br from-slate-200 via-purple-200 to-blue-200 bg-clip-text text-transparent tracking-[0.15em] select-none">
               <span className="relative inline-block">
                 {/* Subtle shadow */}
                 <span className="absolute inset-0 bg-gradient-to-br from-purple-800 via-blue-800 to-gray-800 bg-clip-text text-transparent blur-sm opacity-40 transform translate-x-1 translate-y-1"></span>
@@ -51,15 +51,18 @@ const Index = () => {
             </h1>
           </div>
           
-          {/* Subtitle */}
-          <motion.p 
-            className="text-center text-slate-400 text-lg md:text-xl font-light tracking-[0.3em] mt-4 uppercase"
+          {/* New Subtitle */}
+          <motion.div 
+            className="text-center text-slate-400 text-base md:text-lg font-light tracking-[0.2em] mt-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.5 }}
           >
-            Time Mastery Redefined
-          </motion.p>
+            <p className="leading-relaxed">
+              Ek aur shaam ho gayi, ek aur din dhal gaya<br />
+              Zindagi ki kitaab se ek aur panna nikal gaya !! 🕐
+            </p>
+          </motion.div>
         </motion.div>
 
         {/* Top Navigation */}

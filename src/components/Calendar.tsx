@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar as CalendarIcon, Plus, X, Clock, AlertCircle } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, X, Clock, AlertCircle, Edit, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Calendar as UICalendar } from '@/components/ui/calendar';
 
-interface Task {
+interface Reminder {
   id: string;
   date: string;
   title: string;
@@ -30,16 +29,23 @@ interface CalendarProps {
 
 const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [reminders, setReminders] = useState<Reminder[]>([]);
   const [customHolidays, setCustomHolidays] = useState<CustomHoliday[]>([]);
-  const [showAddTask, setShowAddTask] = useState(false);
+  const [showAddReminder, setShowAddReminder] = useState(false);
   const [showAddHoliday, setShowAddHoliday] = useState(false);
-  const [newTaskTitle, setNewTaskTitle] = useState('');
-  const [newTaskNote, setNewTaskNote] = useState('');
+  const [showEditReminder, setShowEditReminder] = useState<string | null>(null);
+  const [showEditHoliday, setShowEditHoliday] = useState<string | null>(null);
+  const [newReminderTitle, setNewReminderTitle] = useState('');
+  const [newReminderNote, setNewReminderNote] = useState('');
   const [hoveredDate, setHoveredDate] = useState<Date | null>(null);
   const [holidayName, setHolidayName] = useState('');
   const [holidayStartDate, setHolidayStartDate] = useState('');
   const [holidayEndDate, setHolidayEndDate] = useState('');
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+  const [showYearPicker, setShowYearPicker] = useState(false);
+  const [showMonthPicker, setShowMonthPicker] = useState(false);
+  const [editingYear, setEditingYear] = useState('');
 
   // Indian holidays for 2024-2025 (Delhi schools)
   const indianHolidays: Holiday[] = [
@@ -70,9 +76,9 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
 
   // Load data from localStorage
   useEffect(() => {
-    const savedTasks = localStorage.getItem('calendar-tasks');
-    if (savedTasks) {
-      setTasks(JSON.parse(savedTasks));
+    const savedReminders = localStorage.getItem('calendar-reminders');
+    if (savedReminders) {
+      setReminders(JSON.parse(savedReminders));
     }
     
     const savedHolidays = localStorage.getItem('custom-holidays');
@@ -83,26 +89,49 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
 
   // Save data to localStorage
   useEffect(() => {
-    localStorage.setItem('calendar-tasks', JSON.stringify(tasks));
-  }, [tasks]);
+    localStorage.setItem('calendar-reminders', JSON.stringify(reminders));
+  }, [reminders]);
 
   useEffect(() => {
     localStorage.setItem('custom-holidays', JSON.stringify(customHolidays));
   }, [customHolidays]);
 
-  const handleAddTask = () => {
-    if (selectedDate && newTaskTitle.trim()) {
-      const newTask: Task = {
+  const handleAddReminder = () => {
+    if (selectedDate && newReminderTitle.trim()) {
+      const newReminder: Reminder = {
         id: Date.now().toString(),
         date: selectedDate.toISOString().split('T')[0],
-        title: newTaskTitle.trim(),
-        note: newTaskNote.trim(),
+        title: newReminderTitle.trim(),
+        note: newReminderNote.trim(),
       };
-      setTasks([...tasks, newTask]);
-      setNewTaskTitle('');
-      setNewTaskNote('');
-      setShowAddTask(false);
+      setReminders([...reminders, newReminder]);
+      setNewReminderTitle('');
+      setNewReminderNote('');
+      setShowAddReminder(false);
     }
+  };
+
+  const handleEditReminder = (reminder: Reminder) => {
+    setNewReminderTitle(reminder.title);
+    setNewReminderNote(reminder.note);
+    setShowEditReminder(reminder.id);
+  };
+
+  const handleUpdateReminder = () => {
+    if (showEditReminder && newReminderTitle.trim()) {
+      setReminders(reminders.map(reminder => 
+        reminder.id === showEditReminder 
+          ? { ...reminder, title: newReminderTitle.trim(), note: newReminderNote.trim() }
+          : reminder
+      ));
+      setNewReminderTitle('');
+      setNewReminderNote('');
+      setShowEditReminder(null);
+    }
+  };
+
+  const handleDeleteReminder = (id: string) => {
+    setReminders(reminders.filter(reminder => reminder.id !== id));
   };
 
   const handleAddHoliday = () => {
@@ -121,19 +150,61 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
     }
   };
 
-  const getTasksForDate = (date: Date) => {
+  const handleEditHoliday = (holiday: CustomHoliday) => {
+    setHolidayName(holiday.name);
+    setHolidayStartDate(holiday.startDate);
+    setHolidayEndDate(holiday.endDate);
+    setShowEditHoliday(holiday.id);
+  };
+
+  const handleUpdateHoliday = () => {
+    if (showEditHoliday && holidayName.trim() && holidayStartDate && holidayEndDate) {
+      setCustomHolidays(customHolidays.map(holiday => 
+        holiday.id === showEditHoliday 
+          ? { ...holiday, name: holidayName.trim(), startDate: holidayStartDate, endDate: holidayEndDate }
+          : holiday
+      ));
+      setHolidayName('');
+      setHolidayStartDate('');
+      setHolidayEndDate('');
+      setShowEditHoliday(null);
+    }
+  };
+
+  const handleDeleteHoliday = (id: string) => {
+    setCustomHolidays(customHolidays.filter(holiday => holiday.id !== id));
+  };
+
+  const handleYearChange = (newYear: number) => {
+    setCurrentYear(newYear);
+    setSelectedDate(new Date(newYear, currentMonth, selectedDate?.getDate() || 1));
+  };
+
+  const handleMonthChange = (newMonth: number) => {
+    setCurrentMonth(newMonth);
+    setSelectedDate(new Date(currentYear, newMonth, selectedDate?.getDate() || 1));
+  };
+
+  const handleYearInput = () => {
+    const year = parseInt(editingYear);
+    if (year && year >= 1900 && year <= 2100) {
+      handleYearChange(year);
+    }
+    setShowYearPicker(false);
+    setEditingYear('');
+  };
+
+  const getRemindersForDate = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
-    return tasks.filter(task => task.date === dateStr);
+    return reminders.filter(reminder => reminder.date === dateStr);
   };
 
   const getHolidayForDate = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
     
-    // Check Indian holidays first (higher priority)
     const indianHoliday = indianHolidays.find(holiday => holiday.date === dateStr);
     if (indianHoliday) return indianHoliday;
     
-    // Check custom holidays
     const customHoliday = customHolidays.find(holiday => {
       const holidayStart = new Date(holiday.startDate);
       const holidayEnd = new Date(holiday.endDate);
@@ -148,22 +219,51 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
     return null;
   };
 
-  const getNextTask = () => {
+  const getNextReminder = () => {
     const today = new Date().toISOString().split('T')[0];
-    const futureTasks = tasks.filter(task => task.date >= today);
-    futureTasks.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    return futureTasks[0];
+    const futureReminders = reminders.filter(reminder => reminder.date >= today);
+    futureReminders.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    return futureReminders[0];
   };
 
-  const getDaysUntilTask = (taskDate: string) => {
+  const getDaysUntilReminder = (reminderDate: string) => {
     const today = new Date();
-    const target = new Date(taskDate);
+    const target = new Date(reminderDate);
     const diffTime = target.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
   };
 
-  const nextTask = getNextTask();
+  const nextReminder = getNextReminder();
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  const SmallCalendar = ({ onDateSelect }: { onDateSelect: (date: string) => void }) => (
+    <div className="bg-slate-700/30 rounded-xl p-3 border border-green-400/30">
+      <UICalendar
+        mode="single"
+        selected={new Date()}
+        onSelect={(date) => date && onDateSelect(date.toISOString().split('T')[0])}
+        className="rounded-xl w-full scale-75 origin-top"
+        classNames={{
+          months: "flex flex-col space-y-2",
+          month: "space-y-2",
+          caption: "flex justify-center pt-1 relative items-center text-green-200 text-sm",
+          caption_label: "text-sm font-semibold",
+          nav: "space-x-1 flex items-center",
+          nav_button: "h-6 w-6 bg-green-500/20 hover:bg-green-500/30 text-green-300 hover:text-green-200 rounded-lg transition-colors border border-green-400/30 text-xs",
+          table: "w-full border-collapse space-y-1",
+          head_row: "flex",
+          head_cell: "text-green-300 rounded-md w-8 h-8 font-normal text-xs flex items-center justify-center",
+          row: "flex w-full mt-1",
+          cell: "h-8 w-8 text-center text-xs p-0 relative hover:bg-green-500/20 rounded-lg transition-colors",
+          day: "h-8 w-8 p-0 font-normal text-white hover:bg-green-500/30 rounded-lg transition-colors text-xs relative",
+          day_selected: "bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-400 hover:to-teal-400 shadow-lg shadow-green-500/30",
+          day_today: "bg-green-500/30 text-green-200 font-bold border border-green-400/50",
+          day_outside: "text-gray-600 opacity-50",
+        }}
+      />
+    </div>
+  );
 
   return (
     <motion.div
@@ -174,7 +274,7 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
       onClick={onClose}
     >
       <motion.div
-        className="bg-gradient-to-br from-slate-900/90 via-purple-950/95 to-blue-950/90 backdrop-blur-2xl border border-purple-500/30 rounded-3xl p-8 shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar"
+        className="bg-gradient-to-br from-slate-900/90 via-purple-950/95 to-blue-950/90 backdrop-blur-2xl border border-purple-500/30 rounded-3xl p-8 shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar"
         initial={{ scale: 0.8, opacity: 0, y: 50 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.8, opacity: 0, y: 50 }}
@@ -213,24 +313,82 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
           {/* Calendar - Left Side (bigger) */}
           <div className="lg:col-span-2">
             <div className="bg-slate-800/40 rounded-2xl p-6 border border-purple-500/20 backdrop-blur-sm relative">
+              {/* Custom Year/Month Navigation */}
+              <div className="flex justify-between items-center mb-6">
+                <button onClick={() => handleMonthChange(currentMonth > 0 ? currentMonth - 1 : 11)}>
+                  <ChevronLeft className="h-6 w-6 text-purple-300 hover:text-purple-200" />
+                </button>
+                
+                <div className="flex items-center space-x-4">
+                  <button 
+                    onClick={() => setShowMonthPicker(!showMonthPicker)}
+                    className="text-xl font-semibold text-purple-200 hover:text-purple-100 px-3 py-1 rounded-lg hover:bg-purple-500/20"
+                  >
+                    {monthNames[currentMonth]}
+                  </button>
+                  
+                  <button 
+                    onClick={() => setShowYearPicker(!showYearPicker)}
+                    className="text-xl font-semibold text-purple-200 hover:text-purple-100 px-3 py-1 rounded-lg hover:bg-purple-500/20"
+                  >
+                    {currentYear}
+                  </button>
+                </div>
+                
+                <button onClick={() => handleMonthChange(currentMonth < 11 ? currentMonth + 1 : 0)}>
+                  <ChevronRight className="h-6 w-6 text-purple-300 hover:text-purple-200" />
+                </button>
+              </div>
+
+              {/* Year Picker */}
+              {showYearPicker && (
+                <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-50 bg-slate-800/95 border border-purple-400/50 rounded-lg p-4 backdrop-blur-sm">
+                  <input
+                    type="number"
+                    value={editingYear}
+                    onChange={(e) => setEditingYear(e.target.value)}
+                    placeholder={currentYear.toString()}
+                    className="w-24 bg-slate-700/50 border border-purple-400/30 rounded-lg px-3 py-2 text-white text-center"
+                    onKeyPress={(e) => e.key === 'Enter' && handleYearInput()}
+                  />
+                  <div className="flex space-x-2 mt-2">
+                    <button onClick={handleYearInput} className="bg-purple-500 text-white px-3 py-1 rounded text-sm">Set</button>
+                    <button onClick={() => setShowYearPicker(false)} className="bg-gray-500 text-white px-3 py-1 rounded text-sm">Cancel</button>
+                  </div>
+                </div>
+              )}
+
+              {/* Month Picker */}
+              {showMonthPicker && (
+                <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-50 bg-slate-800/95 border border-purple-400/50 rounded-lg p-4 backdrop-blur-sm grid grid-cols-3 gap-2">
+                  {monthNames.map((month, index) => (
+                    <button
+                      key={month}
+                      onClick={() => { handleMonthChange(index); setShowMonthPicker(false); }}
+                      className="bg-purple-500/20 hover:bg-purple-500/40 text-white px-3 py-2 rounded text-sm"
+                    >
+                      {month.slice(0, 3)}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               <UICalendar
                 mode="single"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
+                month={new Date(currentYear, currentMonth)}
                 className="rounded-2xl w-full"
                 classNames={{
                   months: "flex flex-col space-y-4",
                   month: "space-y-4",
-                  caption: "flex justify-center pt-1 relative items-center text-purple-200 text-xl",
-                  caption_label: "text-xl font-semibold",
-                  nav: "space-x-1 flex items-center",
-                  nav_button: "h-10 w-10 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 hover:text-purple-200 rounded-lg transition-colors border border-purple-400/30",
+                  caption: "flex justify-center pt-1 relative items-center text-purple-200 text-xl hidden",
                   table: "w-full border-collapse space-y-1",
                   head_row: "flex",
-                  head_cell: "text-purple-300 rounded-md w-12 h-12 font-normal text-base flex items-center justify-center",
+                  head_cell: "text-purple-300 rounded-md w-14 h-14 font-normal text-base flex items-center justify-center",
                   row: "flex w-full mt-2",
-                  cell: "h-12 w-12 text-center text-base p-0 relative hover:bg-purple-500/20 rounded-lg transition-colors",
-                  day: "h-12 w-12 p-0 font-normal text-white hover:bg-purple-500/30 rounded-lg transition-colors text-base relative",
+                  cell: "h-14 w-14 text-center text-base p-0 relative hover:bg-purple-500/20 rounded-lg transition-colors",
+                  day: "h-14 w-14 p-0 font-normal text-white hover:bg-purple-500/30 rounded-lg transition-colors text-base relative",
                   day_selected: "bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-400 hover:to-blue-400 shadow-lg shadow-purple-500/30",
                   day_today: "bg-purple-500/30 text-purple-200 font-bold border border-purple-400/50",
                   day_outside: "text-gray-600 opacity-50",
@@ -277,7 +435,7 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
             </div>
           </div>
 
-          {/* Right Side - Task Details */}
+          {/* Right Side - Reminder Details */}
           <div className="space-y-6">
             {/* Selected Date Info */}
             {selectedDate && (
@@ -299,45 +457,81 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
                 {/* Holiday Check */}
                 {getHolidayForDate(selectedDate) && (
                   <div className="bg-purple-500/30 border border-purple-400/40 rounded-xl p-3 mb-3 backdrop-blur-sm">
-                    <div className="flex items-center space-x-2">
-                      <AlertCircle className="text-purple-300" size={16} />
-                      <span className="text-purple-100 font-medium">
-                        {getHolidayForDate(selectedDate)?.name}
-                      </span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <AlertCircle className="text-purple-300" size={16} />
+                        <span className="text-purple-100 font-medium">
+                          {getHolidayForDate(selectedDate)?.name}
+                        </span>
+                      </div>
+                      {getHolidayForDate(selectedDate)?.type === 'custom' && (
+                        <button
+                          onClick={() => {
+                            const holiday = customHolidays.find(h => {
+                              const start = new Date(h.startDate);
+                              const end = new Date(h.endDate);
+                              const current = selectedDate;
+                              return current >= start && current <= end;
+                            });
+                            if (holiday) handleEditHoliday(holiday);
+                          }}
+                          className="text-purple-300 hover:text-purple-200"
+                        >
+                          <Edit size={14} />
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
 
-                {/* Tasks for selected date */}
+                {/* Reminders for selected date */}
                 <div className="space-y-2">
-                  {getTasksForDate(selectedDate).map((task) => (
+                  {getRemindersForDate(selectedDate).map((reminder) => (
                     <motion.div
-                      key={task.id}
+                      key={reminder.id}
                       className="bg-slate-800/60 rounded-xl p-3 border border-purple-400/20 backdrop-blur-sm"
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                     >
-                      <h4 className="font-semibold text-white">{task.title}</h4>
-                      {task.note && <p className="text-gray-300 text-sm mt-1">{task.note}</p>}
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-semibold text-white">{reminder.title}</h4>
+                          {reminder.note && <p className="text-gray-300 text-sm mt-1">{reminder.note}</p>}
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleEditReminder(reminder)}
+                            className="text-purple-400 hover:text-purple-300"
+                          >
+                            <Edit size={14} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteReminder(reminder.id)}
+                            className="text-red-400 hover:text-red-300"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      </div>
                     </motion.div>
                   ))}
                 </div>
 
-                {/* Add Task Button */}
+                {/* Add Reminder Button */}
                 <motion.button
-                  onClick={() => setShowAddTask(true)}
+                  onClick={() => setShowAddReminder(true)}
                   className="mt-3 flex items-center space-x-2 text-purple-400 hover:text-purple-300 transition-colors"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   <Plus size={16} />
-                  <span>Add Task</span>
+                  <span>Add Reminder</span>
                 </motion.button>
               </motion.div>
             )}
 
-            {/* Next Task Countdown */}
-            {nextTask && (
+            {/* Next Reminder Countdown */}
+            {nextReminder && (
               <motion.div
                 className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-400/30 rounded-2xl p-6 backdrop-blur-sm"
                 initial={{ opacity: 0, y: 20 }}
@@ -346,26 +540,26 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
               >
                 <div className="flex items-center space-x-2 mb-2">
                   <Clock className="text-purple-400" size={20} />
-                  <span className="text-purple-200 font-semibold">Upcoming Task</span>
+                  <span className="text-purple-200 font-semibold">Upcoming Reminder</span>
                 </div>
-                <h4 className="text-white font-bold text-lg">{nextTask.title}</h4>
+                <h4 className="text-white font-bold text-lg">{nextReminder.title}</h4>
                 <p className="text-gray-300 text-sm">
-                  {getDaysUntilTask(nextTask.date)} days left until {new Date(nextTask.date).toLocaleDateString('en-IN')}
+                  {getDaysUntilReminder(nextReminder.date)} days left until {new Date(nextReminder.date).toLocaleDateString('en-IN')}
                 </p>
               </motion.div>
             )}
           </div>
         </div>
 
-        {/* Add Task Form */}
+        {/* Add/Edit Reminder Forms */}
         <AnimatePresence>
-          {showAddTask && (
+          {(showAddReminder || showEditReminder) && (
             <motion.div
               className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setShowAddTask(false)}
+              onClick={() => { setShowAddReminder(false); setShowEditReminder(null); setNewReminderTitle(''); setNewReminderNote(''); }}
             >
               <motion.div
                 className="bg-slate-800/90 border border-purple-400/30 rounded-2xl p-6 backdrop-blur-sm max-w-md w-full mx-4"
@@ -374,31 +568,38 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
                 exit={{ opacity: 0, scale: 0.8 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <h3 className="text-xl font-bold text-white mb-4">Add New Task</h3>
+                <h3 className="text-xl font-bold text-white mb-4">
+                  {showEditReminder ? 'Edit Reminder' : 'Add New Reminder'}
+                </h3>
                 <input
                   type="text"
-                  placeholder="Task title"
-                  value={newTaskTitle}
-                  onChange={(e) => setNewTaskTitle(e.target.value)}
+                  placeholder="Reminder title"
+                  value={newReminderTitle}
+                  onChange={(e) => setNewReminderTitle(e.target.value)}
                   className="w-full bg-slate-700/50 border border-purple-400/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mb-3"
                 />
                 <textarea
                   placeholder="Add a note (optional)"
-                  value={newTaskNote}
-                  onChange={(e) => setNewTaskNote(e.target.value)}
+                  value={newReminderNote}
+                  onChange={(e) => setNewReminderNote(e.target.value)}
                   className="w-full bg-slate-700/50 border border-purple-400/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mb-4 h-20 resize-none"
                 />
                 <div className="flex space-x-3">
                   <motion.button
-                    onClick={handleAddTask}
+                    onClick={showEditReminder ? handleUpdateReminder : handleAddReminder}
                     className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-400 hover:to-blue-400 text-white px-6 py-3 rounded-xl transition-all duration-300 font-medium"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    Add Task
+                    {showEditReminder ? 'Update' : 'Add'} Reminder
                   </motion.button>
                   <motion.button
-                    onClick={() => setShowAddTask(false)}
+                    onClick={() => { 
+                      setShowAddReminder(false); 
+                      setShowEditReminder(null); 
+                      setNewReminderTitle(''); 
+                      setNewReminderNote(''); 
+                    }}
                     className="bg-gray-600 hover:bg-gray-500 text-white px-6 py-3 rounded-xl transition-all duration-300 font-medium"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -411,15 +612,21 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
           )}
         </AnimatePresence>
 
-        {/* Add Holiday Form */}
+        {/* Add/Edit Holiday Forms */}
         <AnimatePresence>
-          {showAddHoliday && (
+          {(showAddHoliday || showEditHoliday) && (
             <motion.div
               className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setShowAddHoliday(false)}
+              onClick={() => { 
+                setShowAddHoliday(false); 
+                setShowEditHoliday(null); 
+                setHolidayName(''); 
+                setHolidayStartDate(''); 
+                setHolidayEndDate(''); 
+              }}
             >
               <motion.div
                 className="bg-slate-800/90 border border-purple-400/30 rounded-2xl p-6 backdrop-blur-sm max-w-md w-full mx-4"
@@ -428,7 +635,9 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
                 exit={{ opacity: 0, scale: 0.8 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <h3 className="text-xl font-bold text-white mb-4">Add Custom Holiday</h3>
+                <h3 className="text-xl font-bold text-white mb-4">
+                  {showEditHoliday ? 'Edit Custom Holiday' : 'Add Custom Holiday'}
+                </h3>
                 <input
                   type="text"
                   placeholder="Holiday name"
@@ -436,29 +645,34 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
                   onChange={(e) => setHolidayName(e.target.value)}
                   className="w-full bg-slate-700/50 border border-purple-400/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mb-3"
                 />
-                <input
-                  type="date"
-                  value={holidayStartDate}
-                  onChange={(e) => setHolidayStartDate(e.target.value)}
-                  className="w-full bg-slate-700/50 border border-purple-400/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mb-3"
-                />
-                <input
-                  type="date"
-                  value={holidayEndDate}
-                  onChange={(e) => setHolidayEndDate(e.target.value)}
-                  className="w-full bg-slate-700/50 border border-purple-400/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mb-4"
-                />
+                
+                <div className="mb-4">
+                  <SmallCalendar onDateSelect={setHolidayStartDate} />
+                  <p className="text-sm text-gray-400 mt-2">From: {holidayStartDate || 'Select start date'}</p>
+                </div>
+                
+                <div className="mb-4">
+                  <SmallCalendar onDateSelect={setHolidayEndDate} />
+                  <p className="text-sm text-gray-400 mt-2">To: {holidayEndDate || 'Select end date'}</p>
+                </div>
+                
                 <div className="flex space-x-3">
                   <motion.button
-                    onClick={handleAddHoliday}
+                    onClick={showEditHoliday ? handleUpdateHoliday : handleAddHoliday}
                     className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-400 hover:to-red-400 text-white px-6 py-3 rounded-xl transition-all duration-300 font-medium"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    Add Holiday
+                    {showEditHoliday ? 'Update' : 'Add'} Holiday
                   </motion.button>
                   <motion.button
-                    onClick={() => setShowAddHoliday(false)}
+                    onClick={() => { 
+                      setShowAddHoliday(false); 
+                      setShowEditHoliday(null); 
+                      setHolidayName(''); 
+                      setHolidayStartDate(''); 
+                      setHolidayEndDate(''); 
+                    }}
                     className="bg-gray-600 hover:bg-gray-500 text-white px-6 py-3 rounded-xl transition-all duration-300 font-medium"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
