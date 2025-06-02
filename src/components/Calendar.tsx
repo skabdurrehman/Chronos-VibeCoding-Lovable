@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar as CalendarIcon, Plus, X, Clock, AlertCircle, Edit, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -327,9 +326,9 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
 
         <div className="flex gap-6 h-full">
           {/* Calendar - Main Section */}
-          <div className="flex-shrink-0 w-[450px] bg-slate-800/40 rounded-xl p-4 border border-purple-500/20 backdrop-blur-sm relative h-fit">
+          <div className="flex-shrink-0 w-[380px] bg-slate-800/40 rounded-xl p-3 border border-purple-500/20 backdrop-blur-sm relative h-fit">
             {/* Custom Year/Month Navigation */}
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-3">
               <button onClick={() => handleMonthChange(currentMonth > 0 ? currentMonth - 1 : 11)}>
                 <ChevronLeft className="h-5 w-5 text-purple-300 hover:text-purple-200" />
               </button>
@@ -357,7 +356,7 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
 
             {/* Year/Month Pickers */}
             {showYearPicker && (
-              <div className="absolute top-16 left-1/2 transform -translate-x-1/2 z-50 bg-slate-800/95 border border-purple-400/50 rounded-lg p-3 backdrop-blur-sm">
+              <div className="absolute top-14 left-1/2 transform -translate-x-1/2 z-50 bg-slate-800/95 border border-purple-400/50 rounded-lg p-3 backdrop-blur-sm">
                 <input
                   type="number"
                   value={editingYear}
@@ -374,7 +373,7 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
             )}
 
             {showMonthPicker && (
-              <div className="absolute top-16 left-1/2 transform -translate-x-1/2 z-50 bg-slate-800/95 border border-purple-400/50 rounded-lg p-3 backdrop-blur-sm grid grid-cols-3 gap-1">
+              <div className="absolute top-14 left-1/2 transform -translate-x-1/2 z-50 bg-slate-800/95 border border-purple-400/50 rounded-lg p-3 backdrop-blur-sm grid grid-cols-3 gap-1">
                 {monthNames.map((month, index) => (
                   <button
                     key={month}
@@ -394,15 +393,15 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
               month={new Date(currentYear, currentMonth)}
               className="rounded-xl w-full"
               classNames={{
-                months: "flex flex-col space-y-3",
-                month: "space-y-3",
+                months: "flex flex-col space-y-2",
+                month: "space-y-2",
                 caption: "hidden",
-                table: "w-full border-collapse space-y-1",
+                table: "w-full border-collapse",
                 head_row: "flex",
-                head_cell: "text-purple-300 rounded w-10 h-10 font-normal text-sm flex items-center justify-center",
+                head_cell: "text-purple-300 rounded w-9 h-8 font-normal text-sm flex items-center justify-center",
                 row: "flex w-full mt-1",
-                cell: "h-10 w-10 text-center text-sm p-0 relative hover:bg-purple-500/20 rounded transition-colors",
-                day: "h-10 w-10 p-0 font-normal text-white hover:bg-purple-500/30 rounded transition-colors text-sm relative",
+                cell: "h-9 w-9 text-center text-sm p-0 relative hover:bg-purple-500/20 rounded transition-colors",
+                day: "h-9 w-9 p-0 font-normal text-white hover:bg-purple-500/30 rounded transition-colors text-sm relative",
                 day_selected: "bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-400 hover:to-blue-400 shadow-lg",
                 day_today: "bg-purple-500/30 text-purple-200 font-bold border border-purple-400/50",
                 day_outside: "text-gray-600 opacity-50",
