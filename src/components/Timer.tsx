@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, RotateCcw, SquareX, BellRing, Volume2, VolumeX } from 'lucide-react';
@@ -152,10 +151,10 @@ const Timer = () => {
           oscillator.stop(audioContext.currentTime + startTime + duration);
         };
         
-        // Play a pleasant 3-tone chime sequence that repeats for 2 seconds
-        const toneSequence = [523.25, 659.25, 783.99]; // C5, E5, G5 (pleasant major chord)
+        // Play E5–G5–C6 major arpeggio for 2 seconds
+        const toneSequence = [659.25, 783.99, 1046.50]; // E5, G5, C6 major arpeggio
         
-        // Play the sequence multiple times over 2 seconds
+        // Play the arpeggio sequence multiple times over 2 seconds
         for (let i = 0; i < 4; i++) {
           const sequenceStart = i * 0.5;
           toneSequence.forEach((freq, index) => {
