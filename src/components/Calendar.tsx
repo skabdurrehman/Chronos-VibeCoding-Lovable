@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar as CalendarIcon, Plus, X, Clock, AlertCircle, Edit, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, X, Clock, Edit, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Calendar as UICalendar } from '@/components/ui/calendar';
 
 interface Reminder {
@@ -213,7 +213,6 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
       const holidayEnd = new Date(holiday.endDate);
       const currentDate = new Date(dateStr);
       
-      // Fix the date comparison to include the end date
       holidayStart.setHours(0, 0, 0, 0);
       holidayEnd.setHours(23, 59, 59, 999);
       currentDate.setHours(0, 0, 0, 0);
@@ -326,9 +325,9 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
 
         <div className="flex gap-6 h-full">
           {/* Calendar - Main Section */}
-          <div className="flex-shrink-0 w-[380px] bg-slate-800/40 rounded-xl p-3 border border-purple-500/20 backdrop-blur-sm relative h-fit">
+          <div className="flex-shrink-0 w-fit bg-slate-800/40 rounded-xl p-3 border border-purple-500/20 backdrop-blur-sm relative h-fit">
             {/* Custom Year/Month Navigation */}
-            <div className="flex justify-between items-center mb-3">
+            <div className="flex justify-between items-center mb-3 px-2">
               <button onClick={() => handleMonthChange(currentMonth > 0 ? currentMonth - 1 : 11)}>
                 <ChevronLeft className="h-5 w-5 text-purple-300 hover:text-purple-200" />
               </button>
@@ -391,17 +390,17 @@ const Calendar: React.FC<CalendarProps> = ({ onClose }) => {
               selected={selectedDate}
               onSelect={setSelectedDate}
               month={new Date(currentYear, currentMonth)}
-              className="rounded-xl w-full"
+              className="rounded-xl w-fit mx-auto"
               classNames={{
-                months: "flex flex-col space-y-2",
+                months: "flex flex-col",
                 month: "space-y-2",
                 caption: "hidden",
-                table: "w-full border-collapse",
+                table: "w-fit border-collapse mx-auto",
                 head_row: "flex",
-                head_cell: "text-purple-300 rounded w-9 h-8 font-normal text-sm flex items-center justify-center",
-                row: "flex w-full mt-1",
-                cell: "h-9 w-9 text-center text-sm p-0 relative hover:bg-purple-500/20 rounded transition-colors",
-                day: "h-9 w-9 p-0 font-normal text-white hover:bg-purple-500/30 rounded transition-colors text-sm relative",
+                head_cell: "text-purple-300 rounded w-10 h-8 font-normal text-sm flex items-center justify-center",
+                row: "flex w-full",
+                cell: "h-10 w-10 text-center text-sm p-0 relative hover:bg-purple-500/20 rounded transition-colors",
+                day: "h-10 w-10 p-0 font-normal text-white hover:bg-purple-500/30 rounded transition-colors text-sm relative",
                 day_selected: "bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-400 hover:to-blue-400 shadow-lg",
                 day_today: "bg-purple-500/30 text-purple-200 font-bold border border-purple-400/50",
                 day_outside: "text-gray-600 opacity-50",
