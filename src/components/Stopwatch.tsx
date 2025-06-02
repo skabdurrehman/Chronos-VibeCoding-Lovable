@@ -275,7 +275,7 @@ const Stopwatch = () => {
                   <motion.div
                     key={lap.id}
                     onClick={() => toggleLapSelection(lap.id)}
-                    className={`p-4 rounded-2xl cursor-pointer transition-all duration-500 border-2 ${
+                    className={`group p-4 rounded-2xl cursor-pointer transition-all duration-500 border-2 ${
                       selectedLaps.has(lap.id)
                         ? 'bg-gradient-to-r from-blue-500/30 via-purple-500/30 to-blue-500/30 border-blue-400/60 shadow-lg shadow-blue-500/25'
                         : 'bg-white/5 hover:bg-white/10 border-white/20 hover:border-white/30 hover:shadow-lg hover:shadow-white/10'
@@ -330,22 +330,23 @@ const Stopwatch = () => {
                           ) : (
                             <div className="flex items-center space-x-2">
                               <div>
-                                <div className="text-lg font-semibold text-white">
-                                  {lap.label}
+                                <div className="text-lg font-semibold text-white flex items-center space-x-2">
+                                  <span>{lap.label}</span>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      startEditingLap(lap);
+                                    }}
+                                    className="text-gray-400 hover:text-cyan-400 transition-colors p-1 opacity-0 group-hover:opacity-100 duration-300"
+                                    title="Edit lap name"
+                                  >
+                                    <Edit3 size={16} />
+                                  </button>
                                 </div>
                                 <div className="text-sm text-gray-400">
                                   {lap.timestamp.toLocaleTimeString()}
                                 </div>
                               </div>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  startEditingLap(lap);
-                                }}
-                                className="text-gray-400 hover:text-cyan-400 transition-colors p-1 opacity-0 group-hover:opacity-100"
-                              >
-                                <Edit3 size={16} />
-                              </button>
                             </div>
                           )}
                         </div>
