@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, RotateCcw, SquareX, BellRing, Volume2, VolumeX } from 'lucide-react';
@@ -126,20 +127,41 @@ const Timer = () => {
     if (timer.isComplete && timer.remaining === 0) {
       setIsCompleteAnimating(true);
       
-      // Play sound if not muted
+      // Play improved alarm sound if not muted
       if (!isMuted) {
         const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
         
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
+        // Create a more pleasant alarm sound with multiple tones
+        const playAlarmTone = (frequency: number, startTime: number, duration: number) => {
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          
+          oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime + startTime);
+          oscillator.type = 'sine';
+          
+          // Create a fade in/out envelope
+          gainNode.gain.setValueAtTime(0, audioContext.currentTime + startTime);
+          gainNode.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + startTime + 0.1);
+          gainNode.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + startTime + duration - 0.1);
+          gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + startTime + duration);
+          
+          oscillator.start(audioContext.currentTime + startTime);
+          oscillator.stop(audioContext.currentTime + startTime + duration);
+        };
         
-        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        // Play a pleasant 3-tone chime sequence that repeats for 2 seconds
+        const toneSequence = [523.25, 659.25, 783.99]; // C5, E5, G5 (pleasant major chord)
         
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.5);
+        // Play the sequence multiple times over 2 seconds
+        for (let i = 0; i < 4; i++) {
+          const sequenceStart = i * 0.5;
+          toneSequence.forEach((freq, index) => {
+            playAlarmTone(freq, sequenceStart + index * 0.15, 0.3);
+          });
+        }
       }
 
       setTimeout(() => {
